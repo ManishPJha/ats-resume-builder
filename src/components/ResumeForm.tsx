@@ -36,6 +36,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({
     endDate: '',
     description: '',
   });
+  const [photo, setPhoto] = useState<string | null>(null);
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -108,6 +109,19 @@ const ResumeForm: React.FC<ResumeFormProps> = ({
         endDate: '',
         description: '',
       });
+    }
+  };
+
+  // Handle photo upload
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setPhoto(reader.result as string);
+        onInputChange({ ...formData, photo: reader.result as string });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -188,6 +202,25 @@ const ResumeForm: React.FC<ResumeFormProps> = ({
               onChange={handleChange}
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             />
+            {/* Photo Upload */}
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                Profile Photo
+              </h2>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                className="mb-4"
+              />
+              {photo && (
+                <img
+                  src={photo}
+                  alt="Profile"
+                  className="w-32 h-32 rounded-full mx-auto mb-4"
+                />
+              )}
+            </div>
           </>
         );
       case 1: // Experience

@@ -14,6 +14,47 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
 }) => {
   const resumeRef = useRef<HTMLDivElement>(null);
 
+  // Check if form data is empty
+  const isFormEmpty =
+    !formData.name &&
+    !formData.email &&
+    !formData.phone &&
+    !formData.summary &&
+    formData.experience.length === 0 &&
+    formData.education.length === 0 &&
+    formData.skills.length === 0 &&
+    formData.projects.length === 0;
+
+  const addWatermarkToCanvas = (canvas: HTMLCanvasElement) => {
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      // Set watermark text properties
+      ctx.font = '48px Arial';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      // Rotate the watermark text and repeat it across the canvas
+      ctx.save();
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate((-45 * Math.PI) / 180);
+
+      // Repeat the watermark across the entire canvas with spacing
+      const watermarkText = 'ResumeCraft Pro';
+      const textWidth = ctx.measureText(watermarkText).width; // Measure the width of the watermark text
+      const horizontalSpacing = textWidth * 1.2; // Add horizontal spacing (2x the text width)
+      const verticalSpacing = 200; // Add vertical spacing (200px)
+
+      for (let x = -canvas.width; x < canvas.width; x += horizontalSpacing) {
+        for (let y = -canvas.height; y < canvas.height; y += verticalSpacing) {
+          ctx.fillText(watermarkText, x, y);
+        }
+      }
+
+      ctx.restore();
+    }
+  };
+
   // Download as PNG
   const downloadAsPNG = () => {
     if (resumeRef.current) {
@@ -23,6 +64,9 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
         logging: true, // Debugging
         allowTaint: true, // Allow tainted images
       }).then((canvas) => {
+        // Add watermark to the canvas
+        addWatermarkToCanvas(canvas);
+
         const imgData = canvas.toDataURL('image/png', 1.0); // Highest quality
         const link = document.createElement('a');
         link.href = imgData;
@@ -41,6 +85,9 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
         logging: true, // Debugging
         allowTaint: true, // Allow tainted images
       }).then((canvas) => {
+        // Add watermark to the canvas
+        addWatermarkToCanvas(canvas);
+
         const imgData = canvas.toDataURL('image/png', 1.0); // Highest quality
         const pdf = new jsPDF('p', 'mm', 'a4');
         const imgWidth = 210; // A4 width in mm
@@ -79,20 +126,32 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
       <div className="flex space-x-4 mb-4">
         <button
           onClick={downloadAsPNG}
-          className="bg-primary text-white px-4 py-2 rounded-lg"
+          disabled={isFormEmpty}
+          className={`bg-primary text-white px-4 py-2 rounded-lg ${isFormEmpty ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           Download as PNG
         </button>
         <button
           onClick={downloadAsPDF}
-          className="bg-primary text-white px-4 py-2 rounded-lg"
+          disabled={isFormEmpty}
+          className={`bg-primary text-white px-4 py-2 rounded-lg ${isFormEmpty ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           Download as PDF
         </button>
       </div>
 
       {/* Resume Preview */}
-      <div ref={resumeRef}>{resumeTemplates[template]}</div>
+      <div ref={resumeRef}>
+        {isFormEmpty ? (
+          <div className="bg-gray-100 p-8 rounded-lg shadow-lg text-center h-[14rem]">
+            <p className="text-gray-600">
+              No data available. Please fill in the form to preview your resume.
+            </p>
+          </div>
+        ) : (
+          <>{resumeTemplates[template]}</>
+        )}
+      </div>
     </div>
   );
 };
