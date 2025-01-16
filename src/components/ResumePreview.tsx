@@ -1,47 +1,33 @@
 import { useReactToPrint } from 'react-to-print';
 import { useRef } from 'react';
 import { motion } from 'framer-motion';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
-interface FormData {
-  name: string;
-  email: string;
-  phone: string;
-  location: string;
-  linkedin: string;
-  summary: string;
-  experience: {
-    id: string;
-    title: string;
-    company: string;
-    startDate: string;
-    endDate: string;
-    description: string;
-  }[];
-  education: {
-    id: string;
-    degree: string;
-    institution: string;
-    startDate: string;
-    endDate: string;
-    gpa: string;
-  }[];
-  skills: string[];
-  projects: {
-    id: string;
-    name: string;
-    startDate: string;
-    endDate: string;
-    description: string;
-  }[];
-}
+import { ResumePreviewProps } from './types';
 
-interface ResumePreviewProps {
-  formData: FormData;
-  template: string;
-}
-
-const ResumePreview = ({ formData, template }: ResumePreviewProps) => {
+const ResumePreview: React.FC<ResumePreviewProps> = ({
+  formData,
+  template,
+}) => {
   const componentRef = useRef<HTMLDivElement>(null);
+
+  // Export canvas as PDF
+  const handleDownloadPDF = () => {
+    const input = componentRef.current;
+
+    if (!input) return;
+
+    html2canvas(input).then((canvas) => {
+      const imgData = canvas.toDataURL('image/png', 100);
+      const pdf = new jsPDF();
+      const imgWidth = 210; // A4 size in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      pdf.save('download.pdf');
+    });
+  };
 
   const handlePrint = useReactToPrint({
     contentRef: componentRef,
@@ -126,10 +112,17 @@ const ResumePreview = ({ formData, template }: ResumePreviewProps) => {
 
       {/* Download Button */}
       <button
-        onClick={() => handlePrint()}
+        onClick={() => handleDownloadPDF()}
         className="w-full bg-primary text-white py-3 px-6 rounded-lg hover:bg-opacity-90 transition-all"
       >
         Download as PDF
+      </button>
+      {/* Print Button */}
+      <button
+        onClick={() => handlePrint()}
+        className="w-full bg-primary text-white py-3 px-6 rounded-lg hover:bg-opacity-90 transition-all"
+      >
+        Print Result
       </button>
     </motion.div>
   );

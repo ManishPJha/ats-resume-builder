@@ -10,19 +10,13 @@ const Header = () => {
         <nav>
           <ul className="flex space-x-4">
             <li>
-              <Link to="/builder" className="hover:underline">
-                Builder
-              </Link>
+              <Link to="/builder">Builder</Link>
             </li>
             <li>
-              <Link to="/templates" className="hover:underline">
-                Templates
-              </Link>
+              <Link to="/templates">Templates</Link>
             </li>
             <li>
-              <Link to="/ats-tips" className="hover:underline">
-                ATS Tips
-              </Link>
+              <Link to="/ats-tips">ATS Tips</Link>
             </li>
           </ul>
         </nav>

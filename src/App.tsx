@@ -2,10 +2,11 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import Home from './pages/Home';
 import Builder from './pages/Builder';
-import Header from './layouts/Header';
-import Footer from './layouts/Footer';
 import Templates from './pages/Templates';
 import AtsTips from './pages/AtsTips';
+
+import Header from './layouts/Header';
+import Footer from './layouts/Footer';
 
 function App() {
   return (

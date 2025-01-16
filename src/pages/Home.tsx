@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+
 import Features from '../components/Features';
 import Testimonials from '../components/Testimonials';
 import CTA from '../components/CTA';

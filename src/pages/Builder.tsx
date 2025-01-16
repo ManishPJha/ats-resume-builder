@@ -1,61 +1,49 @@
-import { useState } from 'react';
-import { DragDropContext } from 'react-beautiful-dnd';
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 
-import Droppable from '../components/Droppable';
 import ResumeForm from '../components/ResumeForm';
-import ResumePreview from '../components/ResumePreview';
+// import ResumePreview from '../components/ResumePreview';
 
-interface FormData {
-  name: string;
-  email: string;
-  phone: string;
-  location: string;
-  linkedin: string;
-  summary: string;
-  experience: {
-    id: string;
-    title: string;
-    company: string;
-    startDate: string;
-    endDate: string;
-    description: string;
-  }[];
-  education: {
-    id: string;
-    degree: string;
-    institution: string;
-    startDate: string;
-    endDate: string;
-    gpa: string;
-  }[];
-  skills: string[];
-  projects: {
-    id: string;
-    name: string;
-    startDate: string;
-    endDate: string;
-    description: string;
-  }[];
-}
+import { FormData, Templates } from '../components/types';
+import TemplatePreview from '../components/templates/TemplatePreview';
 
 // Define a union type for valid keys
 type FormDataKey = 'experience' | 'education' | 'skills' | 'projects';
 
-const Builder = () => {
-  const [formData, setFormData] = useState<FormData>({
-    name: '',
-    email: '',
-    phone: '',
-    location: '',
-    linkedin: '',
-    summary: '',
-    experience: [],
-    education: [],
-    skills: [],
-    projects: [],
-  });
+const defaultValues = {
+  name: '',
+  email: '',
+  phone: '',
+  location: '',
+  linkedin: '',
+  summary: '',
+  experience: [],
+  education: [],
+  skills: [],
+  projects: [],
+};
 
-  const [selectedTemplate, setSelectedTemplate] = useState('classic'); // Default template
+const Builder = () => {
+  const [formData, setFormData] = useState<FormData>(defaultValues);
+
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<Templates>('classic'); // Default template
+  const [currentStep, setCurrentStep] = useState(0); // Current step in the form
+
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const template = queryParams.get('template') || 'classic'; // Default to 'classic'
+
+  // Define steps
+  const steps = [
+    'Personal Details',
+    'Experience',
+    'Education',
+    'Skills',
+    'Projects',
+    'Summary',
+  ];
 
   // Handle drag-and-drop for sections
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -87,6 +75,25 @@ const Builder = () => {
 
     setFormData(newFormData);
   };
+
+  // Go to the next step
+  const nextStep = () => {
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  // Go to the previous step
+  const prevStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  useEffect(() => {
+    // console.log(`Selected template: ${template}`);
+    if (template) setSelectedTemplate(template as Templates);
+  }, [template]);
 
   return (
     <div className="min-h-screen bg-gray-100 py-12">
@@ -134,19 +141,62 @@ const Builder = () => {
           </div>
         </div>
 
+        {/* Step Navigation */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center">
+            <button
+              onClick={prevStep}
+              disabled={currentStep === 0}
+              className="bg-primary text-white py-2 px-4 rounded-lg hover:bg-opacity-90 transition-all disabled:bg-gray-300 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            <p className="text-gray-800">
+              Step {currentStep + 1} of {steps.length}: {steps[currentStep]}
+            </p>
+            <button
+              onClick={nextStep}
+              disabled={currentStep === steps.length - 1}
+              className="bg-primary text-white py-2 px-4 rounded-lg hover:bg-opacity-90 transition-all disabled:bg-gray-300 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Resume Form */}
           <div className="bg-white p-8 rounded-lg shadow-lg">
-            <ResumeForm onInputChange={setFormData} formData={formData} />
+            <ResumeForm
+              onInputChange={setFormData}
+              formData={formData}
+              currentStep={currentStep}
+            />
           </div>
 
           {/* Resume Preview */}
-          <div className="bg-white p-8 rounded-lg shadow-lg">
+          {/* <div className="bg-white p-8 rounded-lg shadow-lg">
             <DragDropContext onDragEnd={onDragEnd}>
               <Droppable droppableId="resume-sections">
                 {(provided) => (
                   <div {...provided.droppableProps} ref={provided.innerRef}>
                     <ResumePreview
+                      formData={formData}
+                      template={selectedTemplate}
+                    />
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+          </div> */}
+
+          <div className="bg-white p-8 rounded-lg shadow-lg">
+            <DragDropContext onDragEnd={onDragEnd}>
+              <Droppable droppableId="resume-sections">
+                {(provided) => (
+                  <div {...provided.droppableProps} ref={provided.innerRef}>
+                    <TemplatePreview
                       formData={formData}
                       template={selectedTemplate}
                     />
