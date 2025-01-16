@@ -1,4 +1,7 @@
 import { ChangeEvent, useState } from 'react';
+import { DragDropContext, Draggable } from 'react-beautiful-dnd';
+
+import Droppable from './Droppable';
 
 interface FormData {
   name: string;
@@ -8,6 +11,7 @@ interface FormData {
   linkedin: string;
   summary: string;
   experience: {
+    id: string;
     title: string;
     company: string;
     startDate: string;
@@ -15,6 +19,7 @@ interface FormData {
     description: string;
   }[];
   education: {
+    id: string;
     degree: string;
     institution: string;
     startDate: string;
@@ -23,6 +28,7 @@ interface FormData {
   }[];
   skills: string[];
   projects: {
+    id: string;
     name: string;
     startDate: string;
     endDate: string;
@@ -32,23 +38,12 @@ interface FormData {
 
 interface ResumeFormProps {
   onInputChange: (data: FormData) => void;
+  formData: FormData; // Pass formData as a prop
 }
 
-const ResumeForm = ({ onInputChange }: ResumeFormProps) => {
-  const [formData, setFormData] = useState<FormData>({
-    name: '',
-    email: '',
-    phone: '',
-    location: '',
-    linkedin: '',
-    summary: '',
-    experience: [],
-    education: [],
-    skills: [],
-    projects: [],
-  });
-
+const ResumeForm = ({ onInputChange, formData }: ResumeFormProps) => {
   const [newExperience, setNewExperience] = useState({
+    id: `exp-${Date.now()}`,
     title: '',
     company: '',
     startDate: '',
@@ -57,6 +52,7 @@ const ResumeForm = ({ onInputChange }: ResumeFormProps) => {
   });
 
   const [newEducation, setNewEducation] = useState({
+    id: `edu-${Date.now()}`,
     degree: '',
     institution: '',
     startDate: '',
@@ -66,6 +62,7 @@ const ResumeForm = ({ onInputChange }: ResumeFormProps) => {
 
   const [newSkill, setNewSkill] = useState('');
   const [newProject, setNewProject] = useState({
+    id: `proj-${Date.now()}`,
     name: '',
     startDate: '',
     endDate: '',
@@ -76,8 +73,8 @@ const ResumeForm = ({ onInputChange }: ResumeFormProps) => {
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-    onInputChange({ ...formData, [name]: value });
+    const updatedFormData = { ...formData, [name]: value };
+    onInputChange(updatedFormData); // Update formData in the Builder component
   };
 
   const addExperience = () => {
@@ -89,15 +86,15 @@ const ResumeForm = ({ onInputChange }: ResumeFormProps) => {
     ) {
       const updatedExperience = [...formData.experience, newExperience];
       const updatedFormData = { ...formData, experience: updatedExperience };
-      setFormData(updatedFormData);
+      onInputChange(updatedFormData); // Update formData in the Builder component
       setNewExperience({
+        id: `exp-${Date.now()}`,
         title: '',
         company: '',
         startDate: '',
         endDate: '',
         description: '',
       });
-      onInputChange(updatedFormData);
     }
   };
 
@@ -110,15 +107,15 @@ const ResumeForm = ({ onInputChange }: ResumeFormProps) => {
     ) {
       const updatedEducation = [...formData.education, newEducation];
       const updatedFormData = { ...formData, education: updatedEducation };
-      setFormData(updatedFormData);
+      onInputChange(updatedFormData); // Update formData in the Builder component
       setNewEducation({
+        id: `edu-${Date.now()}`,
         degree: '',
         institution: '',
         startDate: '',
         endDate: '',
         gpa: '',
       });
-      onInputChange(updatedFormData);
     }
   };
 
@@ -126,9 +123,8 @@ const ResumeForm = ({ onInputChange }: ResumeFormProps) => {
     if (newSkill.trim()) {
       const updatedSkills = [...formData.skills, newSkill.trim()];
       const updatedFormData = { ...formData, skills: updatedSkills };
-      setFormData(updatedFormData);
+      onInputChange(updatedFormData); // Update formData in the Builder component
       setNewSkill('');
-      onInputChange(updatedFormData);
     }
   };
 
@@ -136,14 +132,42 @@ const ResumeForm = ({ onInputChange }: ResumeFormProps) => {
     if (newProject.name && newProject.startDate && newProject.description) {
       const updatedProjects = [...formData.projects, newProject];
       const updatedFormData = { ...formData, projects: updatedProjects };
-      setFormData(updatedFormData);
+      onInputChange(updatedFormData); // Update formData in the Builder component
       setNewProject({
+        id: `proj-${Date.now()}`,
         name: '',
         startDate: '',
         endDate: '',
         description: '',
       });
-      onInputChange(updatedFormData);
+    }
+  };
+
+  // Handle drag-and-drop for experience, education, and projects
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onDragEnd = (result: any) => {
+    if (!result.destination) return;
+
+    const { source, destination, type } = result;
+
+    if (type === 'experience') {
+      const updatedExperience = [...formData.experience];
+      const [movedExperience] = updatedExperience.splice(source.index, 1);
+      updatedExperience.splice(destination.index, 0, movedExperience);
+      const updatedFormData = { ...formData, experience: updatedExperience };
+      onInputChange(updatedFormData); // Update formData in the Builder component
+    } else if (type === 'education') {
+      const updatedEducation = [...formData.education];
+      const [movedEducation] = updatedEducation.splice(source.index, 1);
+      updatedEducation.splice(destination.index, 0, movedEducation);
+      const updatedFormData = { ...formData, education: updatedEducation };
+      onInputChange(updatedFormData); // Update formData in the Builder component
+    } else if (type === 'projects') {
+      const updatedProjects = [...formData.projects];
+      const [movedProject] = updatedProjects.splice(source.index, 1);
+      updatedProjects.splice(destination.index, 0, movedProject);
+      const updatedFormData = { ...formData, projects: updatedProjects };
+      onInputChange(updatedFormData); // Update formData in the Builder component
     }
   };
 
@@ -208,144 +232,175 @@ const ResumeForm = ({ onInputChange }: ResumeFormProps) => {
       <h2 className="text-2xl font-semibold text-gray-800 mt-8 mb-4">
         Experience
       </h2>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="experience" type="experience">
+          {(provided) => (
+            <div {...provided.droppableProps} ref={provided.innerRef}>
+              {formData.experience.map((exp, index) => (
+                <Draggable key={exp.id} draggableId={exp.id} index={index}>
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      className="bg-gray-50 p-4 rounded-lg mb-4"
+                    >
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        {exp.title}
+                      </h3>
+                      <p className="text-gray-600">{exp.company}</p>
+                      <p className="text-gray-600">
+                        {exp.startDate} - {exp.endDate || 'Present'}
+                      </p>
+                      <p className="text-gray-600">{exp.description}</p>
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
       <div className="space-y-4">
-        {formData.experience.map((exp, index) => (
-          <div key={index} className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold text-gray-800">{exp.title}</h3>
-            <p className="text-gray-600">{exp.company}</p>
-            <p className="text-gray-600">
-              {exp.startDate} - {exp.endDate || 'Present'}
-            </p>
-            <p className="text-gray-600">{exp.description}</p>
-          </div>
-        ))}
-        <div className="space-y-4">
-          <input
-            type="text"
-            placeholder="Job Title"
-            value={newExperience.title}
-            onChange={(e) =>
-              setNewExperience({ ...newExperience, title: e.target.value })
-            }
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-          <input
-            type="text"
-            placeholder="Company"
-            value={newExperience.company}
-            onChange={(e) =>
-              setNewExperience({ ...newExperience, company: e.target.value })
-            }
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-          <input
-            type="text"
-            placeholder="Start Date (e.g., Oct 2021)"
-            value={newExperience.startDate}
-            onChange={(e) =>
-              setNewExperience({ ...newExperience, startDate: e.target.value })
-            }
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-          <input
-            type="text"
-            placeholder="End Date (e.g., Present)"
-            value={newExperience.endDate}
-            onChange={(e) =>
-              setNewExperience({ ...newExperience, endDate: e.target.value })
-            }
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-          <textarea
-            placeholder="Job Description"
-            value={newExperience.description}
-            onChange={(e) =>
-              setNewExperience({
-                ...newExperience,
-                description: e.target.value,
-              })
-            }
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            rows={4}
-          />
-          <button
-            onClick={addExperience}
-            className="bg-primary text-white py-2 px-4 rounded-lg hover:bg-opacity-90 transition-all"
-          >
-            Add Experience
-          </button>
-        </div>
+        <input
+          type="text"
+          placeholder="Job Title"
+          value={newExperience.title}
+          onChange={(e) =>
+            setNewExperience({ ...newExperience, title: e.target.value })
+          }
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        <input
+          type="text"
+          placeholder="Company"
+          value={newExperience.company}
+          onChange={(e) =>
+            setNewExperience({ ...newExperience, company: e.target.value })
+          }
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        <input
+          type="text"
+          placeholder="Start Date (e.g., Oct 2021)"
+          value={newExperience.startDate}
+          onChange={(e) =>
+            setNewExperience({ ...newExperience, startDate: e.target.value })
+          }
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        <input
+          type="text"
+          placeholder="End Date (e.g., Present)"
+          value={newExperience.endDate}
+          onChange={(e) =>
+            setNewExperience({ ...newExperience, endDate: e.target.value })
+          }
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        <textarea
+          placeholder="Job Description"
+          value={newExperience.description}
+          onChange={(e) =>
+            setNewExperience({ ...newExperience, description: e.target.value })
+          }
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+          rows={4}
+        />
+        <button
+          onClick={addExperience}
+          className="bg-primary text-white py-2 px-4 rounded-lg hover:bg-opacity-90 transition-all"
+        >
+          Add Experience
+        </button>
       </div>
 
       <h2 className="text-2xl font-semibold text-gray-800 mt-8 mb-4">
         Education
       </h2>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="education" type="education">
+          {(provided) => (
+            <div {...provided.droppableProps} ref={provided.innerRef}>
+              {formData.education.map((edu, index) => (
+                <Draggable key={edu.id} draggableId={edu.id} index={index}>
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      className="bg-gray-50 p-4 rounded-lg mb-4"
+                    >
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        {edu.degree}
+                      </h3>
+                      <p className="text-gray-600">{edu.institution}</p>
+                      <p className="text-gray-600">
+                        {edu.startDate} - {edu.endDate || 'Present'}
+                      </p>
+                      <p className="text-gray-600">GPA: {edu.gpa}</p>
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
       <div className="space-y-4">
-        {formData.education.map((edu, index) => (
-          <div key={index} className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold text-gray-800">
-              {edu.degree}
-            </h3>
-            <p className="text-gray-600">{edu.institution}</p>
-            <p className="text-gray-600">
-              {edu.startDate} - {edu.endDate || 'Present'}
-            </p>
-            <p className="text-gray-600">GPA: {edu.gpa}</p>
-          </div>
-        ))}
-        <div className="space-y-4">
-          <input
-            type="text"
-            placeholder="Degree (e.g., B.Tech in Computer Science)"
-            value={newEducation.degree}
-            onChange={(e) =>
-              setNewEducation({ ...newEducation, degree: e.target.value })
-            }
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-          <input
-            type="text"
-            placeholder="Institution (e.g., RK University)"
-            value={newEducation.institution}
-            onChange={(e) =>
-              setNewEducation({ ...newEducation, institution: e.target.value })
-            }
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-          <input
-            type="text"
-            placeholder="Start Date (e.g., 2017)"
-            value={newEducation.startDate}
-            onChange={(e) =>
-              setNewEducation({ ...newEducation, startDate: e.target.value })
-            }
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-          <input
-            type="text"
-            placeholder="End Date (e.g., 2021)"
-            value={newEducation.endDate}
-            onChange={(e) =>
-              setNewEducation({ ...newEducation, endDate: e.target.value })
-            }
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-          <input
-            type="text"
-            placeholder="GPA (e.g., 7.22)"
-            value={newEducation.gpa}
-            onChange={(e) =>
-              setNewEducation({ ...newEducation, gpa: e.target.value })
-            }
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-          <button
-            onClick={addEducation}
-            className="bg-primary text-white py-2 px-4 rounded-lg hover:bg-opacity-90 transition-all"
-          >
-            Add Education
-          </button>
-        </div>
+        <input
+          type="text"
+          placeholder="Degree (e.g., B.Tech in Computer Science)"
+          value={newEducation.degree}
+          onChange={(e) =>
+            setNewEducation({ ...newEducation, degree: e.target.value })
+          }
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        <input
+          type="text"
+          placeholder="Institution (e.g., RK University)"
+          value={newEducation.institution}
+          onChange={(e) =>
+            setNewEducation({ ...newEducation, institution: e.target.value })
+          }
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        <input
+          type="text"
+          placeholder="Start Date (e.g., 2017)"
+          value={newEducation.startDate}
+          onChange={(e) =>
+            setNewEducation({ ...newEducation, startDate: e.target.value })
+          }
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        <input
+          type="text"
+          placeholder="End Date (e.g., 2021)"
+          value={newEducation.endDate}
+          onChange={(e) =>
+            setNewEducation({ ...newEducation, endDate: e.target.value })
+          }
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        <input
+          type="text"
+          placeholder="GPA (e.g., 7.22)"
+          value={newEducation.gpa}
+          onChange={(e) =>
+            setNewEducation({ ...newEducation, gpa: e.target.value })
+          }
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        <button
+          onClick={addEducation}
+          className="bg-primary text-white py-2 px-4 rounded-lg hover:bg-opacity-90 transition-all"
+        >
+          Add Education
+        </button>
       </div>
 
       <h2 className="text-2xl font-semibold text-gray-800 mt-8 mb-4">Skills</h2>
@@ -375,62 +430,82 @@ const ResumeForm = ({ onInputChange }: ResumeFormProps) => {
       <h2 className="text-2xl font-semibold text-gray-800 mt-8 mb-4">
         Projects
       </h2>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="projects" type="projects">
+          {(provided) => (
+            <div {...provided.droppableProps} ref={provided.innerRef}>
+              {formData.projects.map((project, index) => (
+                <Draggable
+                  key={project.id}
+                  draggableId={project.id}
+                  index={index}
+                >
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      className="bg-gray-50 p-4 rounded-lg mb-4"
+                    >
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        {project.name}
+                      </h3>
+                      <p className="text-gray-600">
+                        {project.startDate} - {project.endDate || 'Present'}
+                      </p>
+                      <p className="text-gray-600">{project.description}</p>
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
       <div className="space-y-4">
-        {formData.projects.map((project, index) => (
-          <div key={index} className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold text-gray-800">
-              {project.name}
-            </h3>
-            <p className="text-gray-600">
-              {project.startDate} - {project.endDate || 'Present'}
-            </p>
-            <p className="text-gray-600">{project.description}</p>
-          </div>
-        ))}
-        <div className="space-y-4">
-          <input
-            type="text"
-            placeholder="Project Name"
-            value={newProject.name}
-            onChange={(e) =>
-              setNewProject({ ...newProject, name: e.target.value })
-            }
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-          <input
-            type="text"
-            placeholder="Start Date (e.g., Dec 2021)"
-            value={newProject.startDate}
-            onChange={(e) =>
-              setNewProject({ ...newProject, startDate: e.target.value })
-            }
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-          <input
-            type="text"
-            placeholder="End Date (e.g., Present)"
-            value={newProject.endDate}
-            onChange={(e) =>
-              setNewProject({ ...newProject, endDate: e.target.value })
-            }
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-          <textarea
-            placeholder="Project Description"
-            value={newProject.description}
-            onChange={(e) =>
-              setNewProject({ ...newProject, description: e.target.value })
-            }
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            rows={4}
-          />
-          <button
-            onClick={addProject}
-            className="bg-primary text-white py-2 px-4 rounded-lg hover:bg-opacity-90 transition-all"
-          >
-            Add Project
-          </button>
-        </div>
+        <input
+          type="text"
+          placeholder="Project Name"
+          value={newProject.name}
+          onChange={(e) =>
+            setNewProject({ ...newProject, name: e.target.value })
+          }
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        <input
+          type="text"
+          placeholder="Start Date (e.g., Dec 2021)"
+          value={newProject.startDate}
+          onChange={(e) =>
+            setNewProject({ ...newProject, startDate: e.target.value })
+          }
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        <input
+          type="text"
+          placeholder="End Date (e.g., Present)"
+          value={newProject.endDate}
+          onChange={(e) =>
+            setNewProject({ ...newProject, endDate: e.target.value })
+          }
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        <textarea
+          placeholder="Project Description"
+          value={newProject.description}
+          onChange={(e) =>
+            setNewProject({ ...newProject, description: e.target.value })
+          }
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+          rows={4}
+        />
+        <button
+          onClick={addProject}
+          className="bg-primary text-white py-2 px-4 rounded-lg hover:bg-opacity-90 transition-all"
+        >
+          Add Project
+        </button>
       </div>
     </div>
   );

@@ -7,7 +7,7 @@ const testimonials = [
     role: 'Software Engineer',
     quote:
       'ResumeCraft Pro helped me land my dream job! The ATS optimization is a game-changer.',
-    avatar: 'https://via.placeholder.com/150',
+    avatar: '/portrait_3.png',
   },
   {
     id: 2,
@@ -15,7 +15,7 @@ const testimonials = [
     role: 'Product Manager',
     quote:
       'The templates are beautiful and easy to customize. Highly recommend!',
-    avatar: 'https://via.placeholder.com/150',
+    avatar: '/portrait_3.png',
   },
 ];
 

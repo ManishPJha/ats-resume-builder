@@ -5,7 +5,7 @@ const templates = [
   {
     id: 1,
     name: 'Classic',
-    thumbnail: 'https://via.placeholder.com/300x400',
+    thumbnail: '/cover_cv_classic.png',
     description:
       'A clean and professional template suitable for all industries.',
     layout: 'classic',
@@ -13,14 +13,14 @@ const templates = [
   {
     id: 2,
     name: 'Modern',
-    thumbnail: 'https://via.placeholder.com/300x400',
+    thumbnail: '/cover_cv_modern.jpg',
     description: 'A sleek and contemporary design for tech and creative roles.',
     layout: 'modern',
   },
   {
     id: 3,
     name: 'Minimalist',
-    thumbnail: 'https://via.placeholder.com/300x400',
+    thumbnail: '/cover_cv_minimalist.avif',
     description: 'A simple and elegant template for a minimalist look.',
     layout: 'minimalist',
   },
