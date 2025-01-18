@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 
+import LoginButton from '../components/buttons/Login';
+
 const Header = () => {
   return (
     <header className="bg-blue-500 text-white py-4">
@@ -17,6 +19,10 @@ const Header = () => {
             </li>
             <li>
               <Link to="/ats-tips">ATS Tips</Link>
+            </li>
+            <li>
+              {/* <Link to="/login">Login</Link> */}
+              <LoginButton />
             </li>
           </ul>
         </nav>

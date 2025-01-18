@@ -4,21 +4,23 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Builder from './pages/Builder';
 import Templates from './pages/Templates';
-import AtsTips from './pages/AtsTips';
+import Login from './pages/Login';
+import NotFoundPage from './pages/NotFound';
 
-import Header from './layouts/Header';
-import Footer from './layouts/Footer';
+import RouteWithoutLayout from './layouts/RouteWithoutLayout';
+import RouteWithLayout from './layouts/RouteWithLayout';
 
 function App() {
   // Prevent right-click and inspect element globally
   useEffect(() => {
     const handleContextMenu = (e: MouseEvent) => e.preventDefault();
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+      // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U
       if (
         e.key === 'F12' ||
         (e.ctrlKey && e.shiftKey && e.key === 'I') ||
         (e.ctrlKey && e.shiftKey && e.key === 'J') ||
+        // (e.ctrlKey && e.shiftKey && e.key === 'C') ||
         (e.ctrlKey && e.key === 'U')
       ) {
         e.preventDefault();
@@ -38,14 +40,25 @@ function App() {
 
   return (
     <Router>
-      <Header />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/builder" element={<Builder />} />
-        <Route path="/templates" element={<Templates />} />
-        <Route path="/ats-tips" element={<AtsTips />} />
+        <Route path="/" element={<RouteWithLayout element={<Home />} />} />
+        <Route
+          path="/builder"
+          element={<RouteWithLayout element={<Builder />} />}
+        />
+        <Route
+          path="/templates"
+          element={<RouteWithLayout element={<Templates />} />}
+        />
+        <Route
+          path="/login"
+          element={<RouteWithoutLayout element={<Login />} />}
+        />
+        <Route
+          path="*"
+          element={<RouteWithoutLayout element={<NotFoundPage />} />}
+        />
       </Routes>
-      <Footer />
     </Router>
   );
 }
