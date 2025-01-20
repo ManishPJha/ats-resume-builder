@@ -7,9 +7,9 @@ const Login = () => {
 
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Add your authentication logic here
-    console.log('Email:', email, 'Password:', password);
-    window.alert(JSON.stringify({ email, password }));
+
+    // console.log('Email:', email, 'Password:', password);
+    // window.alert(JSON.stringify({ email, password }));
   };
 
   return (

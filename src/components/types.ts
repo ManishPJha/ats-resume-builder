@@ -62,3 +62,8 @@ export interface TemplatePreviewProps {
   formData: FormData;
   template: Templates;
 }
+
+export interface EmailLoginModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
