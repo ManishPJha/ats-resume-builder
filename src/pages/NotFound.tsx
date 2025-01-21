@@ -28,7 +28,7 @@ const NotFoundPage = () => {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.5, duration: 0.5 }}
+          transition={{ delay: 1, duration: 0.5 }}
           className="text-gray-600 mb-8"
         >
           The page you're looking for doesn't exist or has been moved.
@@ -37,7 +37,7 @@ const NotFoundPage = () => {
           href="/"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 2, duration: 0.5 }}
+          transition={{ delay: 1, duration: 0.5 }}
           className="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300"
         >
           Go Back Home
