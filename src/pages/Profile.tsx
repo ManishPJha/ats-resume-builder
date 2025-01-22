@@ -1,7 +1,7 @@
-import { useAuth0 } from '@auth0/auth0-react';
+import useAuth from '../hooks/useAuth';
 
 const Profile = () => {
-  const { user, logout } = useAuth0();
+  const { user, logout } = useAuth();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -43,9 +43,7 @@ const Profile = () => {
                 Edit Profile
               </button>
               <button
-                onClick={() =>
-                  logout({ logoutParams: { returnTo: window.location.origin } })
-                }
+                onClick={logout}
                 className="w-full sm:w-auto bg-gradient-to-r from-red-600 to-pink-600 text-white px-6 py-3 rounded-lg hover:from-red-700 hover:to-pink-700 transition duration-300"
               >
                 Logout

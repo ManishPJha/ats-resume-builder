@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
+
+import useAuth from '../hooks/useAuth';
 
 import { EmailLoginModalProps } from './types';
 
@@ -7,7 +8,8 @@ const EmailLoginModal: React.FC<EmailLoginModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  const { loginWithRedirect } = useAuth0();
+  const { login } = useAuth();
+
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
 
@@ -17,7 +19,7 @@ const EmailLoginModal: React.FC<EmailLoginModalProps> = ({
       return;
     }
 
-    loginWithRedirect({
+    login({
       authorizationParams: {
         login_hint: email, // Pre-fill the email field in Auth0's login page
       },

@@ -1,26 +1,15 @@
 import { Link } from 'react-router-dom';
-import { useAuth0 } from '@auth0/auth0-react';
+
 import { useEffect, useState, useRef } from 'react';
 
-import EmailLoginModal from '../components/EmailLoginModal';
+import useAuth from '../hooks/useAuth';
 
 const Header = () => {
-  const { isAuthenticated, user, logout } = useAuth0();
+  const { isAuthenticated, user, login, logout } = useAuth();
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [show, setShow] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  const handleLogout = () => {
-    logout({
-      logoutParams: {
-        returnTo: window.location.origin,
-      },
-    });
-  };
-
-  const showEmailLoginModal = () => setShow(true);
-  const closeEmailLoginModal = () => setShow(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -46,7 +35,6 @@ const Header = () => {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      setShow(false);
       setIsDropdownOpen(false);
     };
   }, []);
@@ -132,7 +120,7 @@ const Header = () => {
                       </li>
                       <li>
                         <button
-                          onClick={handleLogout}
+                          onClick={logout}
                           className="w-full text-left px-4 py-2 text-gray-800 hover:bg-blue-500 hover:text-white transition duration-300"
                         >
                           Logout
@@ -145,7 +133,7 @@ const Header = () => {
             </>
           ) : (
             <button
-              onClick={showEmailLoginModal}
+              onClick={login}
               className="bg-white text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-100 transition duration-300"
             >
               Login
@@ -153,9 +141,6 @@ const Header = () => {
           )}
         </div>
       </div>
-
-      {/* Email Login Modal */}
-      {show && <EmailLoginModal isOpen={show} onClose={closeEmailLoginModal} />}
     </header>
   );
 };

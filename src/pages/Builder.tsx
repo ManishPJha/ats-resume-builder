@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 
 import ResumeForm from '../components/ResumeForm';
-// import ResumePreview from '../components/ResumePreview';
 
 import { FormData, Templates } from '../components/types';
 import TemplatePreview from '../components/templates/TemplatePreview';
@@ -173,23 +172,6 @@ const Builder = () => {
               currentStep={currentStep}
             />
           </div>
-
-          {/* Resume Preview */}
-          {/* <div className="bg-white p-8 rounded-lg shadow-lg">
-            <DragDropContext onDragEnd={onDragEnd}>
-              <Droppable droppableId="resume-sections">
-                {(provided) => (
-                  <div {...provided.droppableProps} ref={provided.innerRef}>
-                    <ResumePreview
-                      formData={formData}
-                      template={selectedTemplate}
-                    />
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
-          </div> */}
 
           <div className="bg-white p-8 rounded-lg shadow-lg">
             <DragDropContext onDragEnd={onDragEnd}>

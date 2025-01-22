@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useAuth0 } from '@auth0/auth0-react';
 
 import Home from './pages/Home';
 import Builder from './pages/Builder';
@@ -12,11 +11,7 @@ import NotFoundPage from './pages/NotFound';
 import RouteWithoutLayout from './layouts/RouteWithoutLayout';
 import RouteWithLayout from './layouts/RouteWithLayout';
 
-import FullPageLoader from './components/FullPageLoader';
-
 function App() {
-  const { isLoading } = useAuth0();
-
   // Prevent right-click and inspect element globally
   useEffect(() => {
     const handleContextMenu = (e: MouseEvent) => e.preventDefault();
@@ -43,8 +38,6 @@ function App() {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
-
-  if (isLoading) return <FullPageLoader />;
 
   return (
     <Router>
