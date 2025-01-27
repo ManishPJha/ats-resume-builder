@@ -7,7 +7,9 @@ const options: Auth0ProviderOptions = {
   clientId: import.meta.env.VITE_AUTH0_CLIENT_ID,
   domain: import.meta.env.VITE_AUTH0_DOMAIN,
   authorizationParams: {
-    redirect_uri: 'http://localhost:5173/',
+    redirect_uri: import.meta.env.PROD
+      ? import.meta.env.VITE_AUTH0_REDIRECT_URL
+      : 'http://localhost:5173/',
   },
 };
 
