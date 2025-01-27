@@ -133,7 +133,7 @@ const Header = () => {
             </>
           ) : (
             <button
-              onClick={login}
+              onClick={() => login()}
               className="bg-white text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-100 transition duration-300"
             >
               Login
