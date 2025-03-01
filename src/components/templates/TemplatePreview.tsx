@@ -5,6 +5,7 @@ import jsPDF from 'jspdf';
 import MinimalistTemplate from './MinimalistTemplate';
 import ProfessionalTemplate from './ProfessionalTemplate';
 import ClassicTemplate from './ClassicTemplate';
+import useAuth from '../../hooks/useAuth';
 
 import { TemplatePreviewProps } from '../types';
 
@@ -13,6 +14,8 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
   template,
 }) => {
   const resumeRef = useRef<HTMLDivElement>(null);
+
+  const { isAuthenticated } = useAuth();
 
   // Check if form data is empty
   const isFormEmpty =
@@ -27,6 +30,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
 
   const addWatermarkToCanvas = (canvas: HTMLCanvasElement) => {
     const ctx = canvas.getContext('2d');
+    if (isAuthenticated) return;
     if (ctx) {
       // Set watermark text properties
       ctx.font = '48px Arial';
